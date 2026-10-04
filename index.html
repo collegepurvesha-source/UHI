@@ -119,35 +119,38 @@
         </div>
 
         <!-- Heat profile panel -->
-        <aside id="heat-profile" class="heat-profile">
-          <p class="panel-eyebrow">Click a ward</p>
-          <h3>Heat Profile</h3>
+       <aside id="heat-profile" class="heat-profile">
 
-          <p>
-            Select a ward on the map to view observed LST, vegetation,
-            built-up, and wetness values.
-          </p>
+  <div id="profile-content">
+    <p class="panel-eyebrow">Click a ward</p>
+    <h3>Heat Profile</h3>
 
-          <!-- DIAGNOSIS CARD: This should now always be visible -->
-          <div id="diagnosis-card" class="diagnosis-card">
-            <p class="diagnosis-label">Ward Diagnosis</p>
+    <p>
+      Select a ward on the map to view observed LST, vegetation,
+      built-up, and wetness values.
+    </p>
+  </div>
 
-            <h4 id="diagnosis-title">Select a ward on the map</h4>
+  <div id="diagnosis-card" class="diagnosis-card">
+    <p class="diagnosis-label">Ward Diagnosis</p>
 
-            <p id="diagnosis-text">
-              Once a ward is selected, this card will explain whether its
-              temperature is relatively high or low and identify vegetation,
-              built-up intensity, and water/wetness signals.
-            </p>
+    <h4 id="diagnosis-title">Select a ward on the map</h4>
 
-            <ul id="diagnosis-list">
-              <li>Surface temperature: waiting for ward selection</li>
-              <li>Vegetation signal: waiting for ward selection</li>
-              <li>Built-up signal: waiting for ward selection</li>
-              <li>Wetness signal: waiting for ward selection</li>
-            </ul>
-          </div>
-        </aside>
+    <p id="diagnosis-text">
+      Once a ward is selected, this card will explain whether its
+      temperature is relatively high or low and identify vegetation,
+      built-up intensity, and water/wetness signals.
+    </p>
+
+    <ul id="diagnosis-list">
+      <li>Surface temperature: waiting for ward selection</li>
+      <li>Vegetation signal: waiting for ward selection</li>
+      <li>Built-up signal: waiting for ward selection</li>
+      <li>Wetness signal: waiting for ward selection</li>
+    </ul>
+  </div>
+
+</aside>
       </div>
     </section>
 
