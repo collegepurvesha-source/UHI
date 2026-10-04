@@ -97,54 +97,86 @@ function wardStyle(feature) {
 }
 
 function updateHeatProfile(properties) {
-  // Using 'heat-profile' to match your HTML ID structure
-  const panel = document.getElementById("heat-profile"); 
+  const profileContent = document.getElementById("profile-content");
+  const diagnosisCard = document.getElementById("diagnosis-card");
+  const diagnosisTitle = document.getElementById("diagnosis-title");
+  const diagnosisText = document.getElementById("diagnosis-text");
+  const diagnosisList = document.getElementById("diagnosis-list");
+
+  if (!profileContent || !diagnosisCard || !diagnosisTitle || !diagnosisText || !diagnosisList) {
+    console.error("Diagnosis card HTML elements were not found.");
+    return;
+  }
 
   if (!properties) {
-    panel.innerHTML = "<p>Select a ward on the map to view its detailed heat diagnosis.</p>";
+    profileContent.innerHTML = `
+      <p class="panel-eyebrow">Click a ward</p>
+      <h3>Heat Profile</h3>
+      <p>Select a ward on the map to view observed LST, vegetation, built-up, and wetness values.</p>
+    `;
+
+    diagnosisTitle.textContent = "Select a ward on the map";
+
+    diagnosisText.textContent =
+      "Once a ward is selected, this card will explain whether its temperature is relatively high or low and identify vegetation, built-up intensity, and water/wetness signals.";
+
+    diagnosisList.innerHTML = `
+      <li>Surface temperature: waiting for ward selection</li>
+      <li>Vegetation signal: waiting for ward selection</li>
+      <li>Built-up signal: waiting for ward selection</li>
+      <li>Wetness signal: waiting for ward selection</li>
+    `;
+
     return;
   }
 
   const lst = numeric(properties.LST_mean_C, 0);
   const ndvi = numeric(properties.NDVI_mean, 0);
   const ndbi = numeric(properties.NDBI_mean, 0);
-  
-  const anomaly = numeric(properties.lst_anomaly_C, 0);
-  const anomalyText = anomaly > 0 ? `+${anomaly.toFixed(2)}` : anomaly.toFixed(2);
-  const heatCategory = properties.heat_class || 'N/A';
-  const diagClass = properties.diagnostic_class || 'Data pending';
-  const priority = properties.priority_score || 'N/A';
+  const ndwi = numeric(properties.NDWI_mean, 0);
 
-  panel.innerHTML = `
+  const anomaly = numeric(properties.lst_anomaly_C, 0);
+  const anomalyText = anomaly > 0
+    ? `+${anomaly.toFixed(2)}`
+    : anomaly.toFixed(2);
+
+  const heatCategory = properties.heat_class || "N/A";
+  const diagnosticClass = properties.diagnostic_class || "Data pending";
+  const priority = properties.priority_score || "N/A";
+
+  /* Update only the top Heat Profile text.
+     Do NOT replace #heat-profile because that would delete the diagnosis card. */
+  profileContent.innerHTML = `
     <p class="panel-eyebrow">${wardName(properties)}</p>
     <h3>Ward Heat Diagnosis</h3>
-    
-    <div class="metrics" style="background: #f4f8fb; padding: 12px; border-left: 4px solid #d94801; margin-bottom: 15px; border-radius: 4px;">
-      <p style="margin: 4px 0;"><strong>Observed LST:</strong> ${lst.toFixed(2)} °C</p>
-      <p style="margin: 4px 0;"><strong>Relative heat anomaly:</strong> ${anomalyText} °C</p>
-      <p style="margin: 4px 0;"><strong>Heat category:</strong> ${heatCategory}</p>
-      <p style="margin: 4px 0;"><strong>Diagnostic class:</strong> ${diagClass}</p>
-      <p style="margin: 4px 0;"><strong>Priority Score:</strong> ${priority}</p>
-    </div>
-
-    <div class="diagnosis-section" style="margin-bottom: 15px;">
-      <h4 style="margin-bottom: 8px; color: #102a43; border-bottom: 1px solid #d9e2ec; padding-bottom: 4px;">Observed Evidence</h4>
-      <ul style="padding-left: 20px; margin-top: 0;">
-        <li><strong>NDBI:</strong> ${ndbi.toFixed(4)} (${properties.built_up_risk || 'Unknown'} Built-up Signal)</li>
-        <li><strong>NDVI:</strong> ${ndvi.toFixed(4)} (${properties.vegetation_deficit || 'Unknown'} Vegetation Deficit)</li>
-      </ul>
-      <p style="margin-top: 5px; font-weight: bold;">Confidence Level: <span style="color: #0b5cad;">${properties.evidence_confidence || 'N/A'}</span></p>
-    </div>
-
-    <div class="diagnosis-section">
-      <h4 style="margin-bottom: 8px; color: #102a43; border-bottom: 1px solid #d9e2ec; padding-bottom: 4px;">Recommended Actions & Audits</h4>
-      <p style="margin: 8px 0;"><strong>Intervention:</strong> ${properties.intervention_package || 'Pending audit'}</p>
-      <p style="margin: 8px 0;"><strong>Required Audit:</strong> ${properties.recommended_audit || 'Pending audit'}</p>
-      <p style="font-size: 0.85em; color: #666; font-style: italic; margin-top: 12px; line-height: 1.4;">
-        <strong>Limitations:</strong> ${properties.limitations || 'None'}
-      </p>
-    </div>
+    <p>
+      This ward has observed satellite indicators that can be used to understand
+      relative daytime heat conditions.
+    </p>
   `;
+
+  /* Update the diagnosis card that already exists in index.html. */
+  diagnosisTitle.textContent = `${wardName(properties)}: Heat Diagnosis`;
+
+  diagnosisText.innerHTML = `
+    <strong>Observed LST:</strong> ${lst.toFixed(2)} °C<br>
+    <strong>Relative heat anomaly:</strong> ${anomalyText} °C<br>
+    <strong>Heat category:</strong> ${heatCategory}<br>
+    <strong>Diagnostic class:</strong> ${diagnosticClass}<br>
+    <strong>Priority score:</strong> ${priority}
+  `;
+
+  diagnosisList.innerHTML = `
+    <li><strong>NDBI:</strong> ${ndbi.toFixed(4)} — ${properties.built_up_risk || "Unknown"} built-up signal</li>
+    <li><strong>NDVI:</strong> ${ndvi.toFixed(4)} — ${properties.vegetation_deficit || "Unknown"} vegetation deficit</li>
+    <li><strong>NDWI:</strong> ${ndwi.toFixed(4)} — water/wetness indicator</li>
+    <li><strong>Confidence:</strong> ${properties.evidence_confidence || "N/A"}</li>
+    <li><strong>Recommended intervention:</strong> ${properties.intervention_package || "Pending audit"}</li>
+    <li><strong>Required audit:</strong> ${properties.recommended_audit || "Pending audit"}</li>
+    <li><strong>Limitations:</strong> ${properties.limitations || "None"}</li>
+  `;
+
+  diagnosisCard.style.display = "block";
 }
 
 function addWardLayer() {
