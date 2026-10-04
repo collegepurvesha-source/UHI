@@ -1,12 +1,7 @@
-const GEOJSON_FILE =
-  "data/Bengaluru_wards_LST_NDVI_NDBI_NDWI_2026_04_25.geojson";
-
+const GEOJSON_FILE = "data/Bengaluru_wards_LST_NDVI_NDBI_NDWI_2026_04_25.geojson";
 const RESULTS_FILE = "data/results.json";
 
-const map = L.map("map", { zoomControl: true, scrollWheelZoom: false }).setView([12.9716, 77.5946], 10.7);
-
-map.getContainer().addEventListener("click", () => { map.scrollWheelZoom.enable(); });
-map.getContainer().addEventListener("mouseleave", () => { map.scrollWheelZoom.disable(); });
+const map = L.map("map", { zoomControl: true }).setView([12.9716, 77.5946], 10.7);
 
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 19,
@@ -50,22 +45,6 @@ function wardName(properties) {
   }
 
   return "Selected ward";
-}
-
-function heatClass(lst) {
-  if (lst < 38) {
-    return { label: "Cool", css: "cool", description: "Lower relative surface heat for this satellite scene." };
-  }
-
-  if (lst < 41) {
-    return { label: "Moderate", css: "moderate", description: "Moderate relative surface heat for this satellite scene." };
-  }
-
-  if (lst < 44) {
-    return { label: "Hot", css: "hot", description: "High relative surface heat requiring local heat-mitigation attention." };
-  }
-
-  return { label: "Extreme", css: "extreme", description: "Very high relative surface heat for this satellite scene." };
 }
 
 function getColor(value, indicator) {
@@ -117,133 +96,54 @@ function wardStyle(feature) {
   };
 }
 
-function causes(properties) {
-  const lst = numeric(properties.LST_mean_C);
-  const ndvi = numeric(properties.NDVI_mean);
-  const ndbi = numeric(properties.NDBI_mean);
-  const ndwi = numeric(properties.NDWI_mean);
-  const reasons = [];
-
-  if (ndbi !== null && ndbi > 0.05) {
-    reasons.push(
-      "The built-up surface signal is high. In this prototype model, NDBI was the strongest predictor of ward-level LST."
-    );
-  }
-
-  if (ndvi !== null && ndvi < 0.25) {
-    reasons.push(
-      "Vegetation signal is low, indicating less shade and evapotranspiration cooling."
-    );
-  }
-
-  if (ndwi !== null && ndwi < -0.10) {
-    reasons.push(
-      "The low water/wetness signal indicates limited surface-moisture cooling."
-    );
-  }
-
-  if (lst !== null && lst >= 42 && reasons.length === 0) {
-    reasons.push(
-      "The ward has high observed surface temperature relative to the city-wide daytime pattern."
-    );
-  }
-
-  if (reasons.length === 0) {
-    reasons.push(
-      "Heat is influenced by multiple factors including land cover, building materials, roads, shade, moisture, and local urban form."
-    );
-  }
-
-  return reasons;
-}
-
-function recommendations(properties) {
-  const lst = numeric(properties.LST_mean_C);
-  const ndvi = numeric(properties.NDVI_mean);
-  const ndbi = numeric(properties.NDBI_mean);
-  const ndwi = numeric(properties.NDWI_mean);
-
-  const household = [];
-  const community = [];
-  const policy = [];
-
-  if (ndvi !== null && ndvi < 0.25) {
-    household.push("Plant native shade trees, shrubs, or climbers where space is available.");
-    community.push("Create pocket parks, shaded school grounds, and roadside tree-canopy corridors.");
-    policy.push("Prioritise ward tree-canopy targets and protect mature trees.");
-  }
-
-  if (ndbi !== null && ndbi > 0.05) {
-    household.push("Use cool-roof coatings, lighter roof finishes, and insulation where feasible.");
-    community.push("Add shade over parking lots and replace suitable paved areas with permeable/lighter materials.");
-    policy.push("Offer incentives or standards for cool roofs, shaded parking, and reduced unshaded asphalt.");
-  }
-
-  if (ndwi !== null && ndwi < -0.10) {
-    community.push("Improve rainwater-sensitive landscaping and protect local lake/wetland buffers.");
-    policy.push("Protect blue-green infrastructure and improve stormwater infiltration in redevelopment.");
-  }
-
-  if (lst !== null && lst >= 42) {
-    community.push("Create heat-action plans: drinking-water points, shaded waiting areas, and tree-based cooling corridors.");
-    policy.push("Prioritise this ward for heat-risk audits and climate-resilient public-space investment.");
-  }
-
-  if (household.length === 0) {
-    household.push("Maintain shade, reflective surfaces, cross-ventilation, and water-efficient greenery.");
-  }
-
-  if (community.length === 0) {
-    community.push("Maintain green spaces and ensure new public works include shade and permeable landscaping.");
-  }
-
-  if (policy.length === 0) {
-    policy.push("Monitor land-cover changes and include heat-resilience criteria in ward development plans.");
-  }
-
-  return { household, community, policy };
-}
-
-function listItems(items) {
-  return items.map((item) => `<li>${item}</li>`).join("");
-}
-
 function updateHeatProfile(properties) {
-  const lst = numeric(properties.LST_mean_C);
-  const ndvi = numeric(properties.NDVI_mean);
-  const ndbi = numeric(properties.NDBI_mean);
-  const ndwi = numeric(properties.NDWI_mean);
-  const pixels = numeric(properties.valid_pixels, 0);
-  const category = heatClass(lst);
-  const why = causes(properties);
-  const actions = recommendations(properties);
+  // Using 'heat-profile' to match your HTML ID structure
+  const panel = document.getElementById("heat-profile"); 
 
-  document.getElementById("heat-profile").innerHTML = `
+  if (!properties) {
+    panel.innerHTML = "<p>Select a ward on the map to view its detailed heat diagnosis.</p>";
+    return;
+  }
+
+  const lst = numeric(properties.LST_mean_C, 0);
+  const ndvi = numeric(properties.NDVI_mean, 0);
+  const ndbi = numeric(properties.NDBI_mean, 0);
+  
+  const anomaly = numeric(properties.lst_anomaly_C, 0);
+  const anomalyText = anomaly > 0 ? `+${anomaly.toFixed(2)}` : anomaly.toFixed(2);
+  const heatCategory = properties.heat_class || 'N/A';
+  const diagClass = properties.diagnostic_class || 'Data pending';
+  const priority = properties.priority_score || 'N/A';
+
+  panel.innerHTML = `
     <p class="panel-eyebrow">${wardName(properties)}</p>
-    <h3>Heat Profile</h3>
-    <span class="heat-badge badge-${category.css}">${category.label} Heat</span>
-    <p>${category.description}</p>
-
-    <div class="metric-list">
-      <div class="metric"><span>Observed mean LST</span><strong>${lst.toFixed(2)} °C</strong></div>
-      <div class="metric"><span>Mean NDVI</span><strong>${ndvi.toFixed(4)}</strong></div>
-      <div class="metric"><span>Mean NDBI</span><strong>${ndbi.toFixed(4)}</strong></div>
-      <div class="metric"><span>Mean NDWI</span><strong>${ndwi.toFixed(4)}</strong></div>
-      <div class="metric"><span>Valid 30 m pixels</span><strong>${pixels.toLocaleString()}</strong></div>
+    <h3>Ward Heat Diagnosis</h3>
+    
+    <div class="metrics" style="background: #f4f8fb; padding: 12px; border-left: 4px solid #d94801; margin-bottom: 15px; border-radius: 4px;">
+      <p style="margin: 4px 0;"><strong>Observed LST:</strong> ${lst.toFixed(2)} °C</p>
+      <p style="margin: 4px 0;"><strong>Relative heat anomaly:</strong> ${anomalyText} °C</p>
+      <p style="margin: 4px 0;"><strong>Heat category:</strong> ${heatCategory}</p>
+      <p style="margin: 4px 0;"><strong>Diagnostic class:</strong> ${diagClass}</p>
+      <p style="margin: 4px 0;"><strong>Priority Score:</strong> ${priority}</p>
     </div>
 
-    <h4>Why may it be hot?</h4>
-    <ul class="reason-list">${listItems(why)}</ul>
+    <div class="diagnosis-section" style="margin-bottom: 15px;">
+      <h4 style="margin-bottom: 8px; color: #102a43; border-bottom: 1px solid #d9e2ec; padding-bottom: 4px;">Observed Evidence</h4>
+      <ul style="padding-left: 20px; margin-top: 0;">
+        <li><strong>NDBI:</strong> ${ndbi.toFixed(4)} (${properties.built_up_risk || 'Unknown'} Built-up Signal)</li>
+        <li><strong>NDVI:</strong> ${ndvi.toFixed(4)} (${properties.vegetation_deficit || 'Unknown'} Vegetation Deficit)</li>
+      </ul>
+      <p style="margin-top: 5px; font-weight: bold;">Confidence Level: <span style="color: #0b5cad;">${properties.evidence_confidence || 'N/A'}</span></p>
+    </div>
 
-    <h4>Recommended actions</h4>
-    <p><strong>Household:</strong></p>
-    <ul class="action-list">${listItems(actions.household)}</ul>
-
-    <p><strong>Community / RWA / Campus:</strong></p>
-    <ul class="action-list">${listItems(actions.community)}</ul>
-
-    <p><strong>Policy / Planning:</strong></p>
-    <ul class="action-list">${listItems(actions.policy)}</ul>
+    <div class="diagnosis-section">
+      <h4 style="margin-bottom: 8px; color: #102a43; border-bottom: 1px solid #d9e2ec; padding-bottom: 4px;">Recommended Actions & Audits</h4>
+      <p style="margin: 8px 0;"><strong>Intervention:</strong> ${properties.intervention_package || 'Pending audit'}</p>
+      <p style="margin: 8px 0;"><strong>Required Audit:</strong> ${properties.recommended_audit || 'Pending audit'}</p>
+      <p style="font-size: 0.85em; color: #666; font-style: italic; margin-top: 12px; line-height: 1.4;">
+        <strong>Limitations:</strong> ${properties.limitations || 'None'}
+      </p>
+    </div>
   `;
 }
 
@@ -302,7 +202,7 @@ function loadSummary() {
     .then((results) => {
       const ndwiElement = document.getElementById("mean-ndwi");
 
-      if (results.mean_ndwi !== null && results.mean_ndwi !== undefined) {
+      if (ndwiElement && results.mean_ndwi !== null && results.mean_ndwi !== undefined) {
         ndwiElement.textContent = Number(results.mean_ndwi).toFixed(4);
       }
     })
@@ -323,8 +223,10 @@ fetch(GEOJSON_FILE)
     addWardLayer();
   })
   .catch((error) => {
-    document.getElementById("legend").textContent =
-      `${error.message} Use a local server or GitHub Pages; do not open index.html directly.`;
+    const legend = document.getElementById("legend");
+    if (legend) {
+        legend.textContent = `${error.message} Use a local server or GitHub Pages; do not open index.html directly.`;
+    }
     console.error(error);
   });
 

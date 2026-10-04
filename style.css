@@ -457,3 +457,31 @@ footer p {
   max-width: 760px;
   margin: 24px auto 24px;
 }
+#diagnosis-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 14px rgba(16, 42, 67, 0.08);
+}
+
+.metrics {
+  background: #f4f8fb;
+  padding: 10px;
+  border-left: 4px solid #d94801;
+  margin-bottom: 15px;
+}
+
+.diagnosis-section h5 {
+  color: var(--dark);
+  margin-bottom: 5px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 3px;
+}
+
+.limitations {
+  font-size: 0.85em;
+  color: #666;
+  font-style: italic;
+  margin-top: 10px;
+}
