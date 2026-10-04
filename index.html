@@ -11,10 +11,10 @@
     content="A ward-wise satellite analysis and heat-intervention explorer for Bengaluru."
   >
 
-  <!-- Your CSS file -->
+  <!-- Your project CSS -->
   <link rel="stylesheet" href="style.css">
 
-  <!-- Leaflet map CSS -->
+  <!-- Leaflet CSS for the map -->
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -24,6 +24,7 @@
 
 <body>
 
+  <!-- HERO SECTION -->
   <header class="hero">
     <div class="container">
       <p class="eyebrow">Engineering Project · Satellite Heat Intelligence</p>
@@ -50,6 +51,7 @@
 
   <main>
 
+    <!-- OBSERVED RESULTS -->
     <section class="container section">
       <h2>Observed Satellite Results</h2>
 
@@ -86,6 +88,7 @@
       </div>
     </section>
 
+    <!-- MAP + DIAGNOSIS CARD -->
     <section id="explorer" class="container section">
       <div class="section-heading">
         <div>
@@ -115,18 +118,40 @@
           <p id="legend" class="legend"></p>
         </div>
 
-        <!-- Your diagnosis/heat-profile card should appear here -->
+        <!-- Heat profile panel -->
         <aside id="heat-profile" class="heat-profile">
           <p class="panel-eyebrow">Click a ward</p>
           <h3>Heat Profile</h3>
+
           <p>
             Select a ward on the map to view observed LST, vegetation,
             built-up, and wetness values.
           </p>
+
+          <!-- DIAGNOSIS CARD: This should now always be visible -->
+          <div id="diagnosis-card" class="diagnosis-card">
+            <p class="diagnosis-label">Ward Diagnosis</p>
+
+            <h4 id="diagnosis-title">Select a ward on the map</h4>
+
+            <p id="diagnosis-text">
+              Once a ward is selected, this card will explain whether its
+              temperature is relatively high or low and identify vegetation,
+              built-up intensity, and water/wetness signals.
+            </p>
+
+            <ul id="diagnosis-list">
+              <li>Surface temperature: waiting for ward selection</li>
+              <li>Vegetation signal: waiting for ward selection</li>
+              <li>Built-up signal: waiting for ward selection</li>
+              <li>Wetness signal: waiting for ward selection</li>
+            </ul>
+          </div>
         </aside>
       </div>
     </section>
 
+    <!-- RELATIONSHIPS -->
     <section class="container section">
       <h2>What the Existing Results Show</h2>
 
@@ -169,6 +194,7 @@
       </div>
     </section>
 
+    <!-- INTERVENTIONS -->
     <section class="container section">
       <h2>Intervention Framework</h2>
 
@@ -221,6 +247,7 @@
       </div>
     </section>
 
+    <!-- MODEL -->
     <section class="container section">
       <h2>Prototype Heat-Prediction Model</h2>
 
@@ -295,10 +322,13 @@
       <p class="note">
         <strong>Important limitation:</strong> This is a single-date, ward-level
         prototype based on 243 wards observed on 25 April 2026. It is not yet a
-        temporally independent operational forecast.
+        temporally independent operational forecast. Future work should add
+        multi-season satellite data, population density, road and building
+        information, tree-canopy data, and spatial/temporal validation.
       </p>
     </section>
 
+    <!-- FEATURE IMPORTANCE -->
     <section class="container section">
       <h2>What Drives Heat in This Prototype?</h2>
 
@@ -335,8 +365,16 @@
           alt="Bar chart showing NDBI as the most important feature in the Random Forest heat model"
         >
       </article>
+
+      <p class="note">
+        <strong>Interpret carefully:</strong> Feature importance describes this
+        model and dataset, not a universal causal ranking. NDVI remained negatively
+        correlated with observed LST, but it may overlap statistically with the
+        built-up signal in this one-date, 243-ward dataset.
+      </p>
     </section>
 
+    <!-- METHODOLOGY -->
     <section id="methodology" class="container section">
       <h2>Methodology</h2>
 
@@ -347,8 +385,16 @@
         <li>Calculated LST from ST_B10, NDVI from B5 and B4, NDBI from B6 and B5, and NDWI from B3 and B5.</li>
         <li>Calculated ward-level mean values for 243 wards and evaluated relationships among the indicators.</li>
       </ol>
+
+      <p class="note">
+        <strong>Model-status note:</strong> The current public map contains observed
+        satellite measurements and rule-based interventions. A predictive model should
+        be trained and validated using multiple satellite dates before its predictions
+        are presented as operational forecasts.
+      </p>
     </section>
 
+    <!-- DOWNLOADS -->
     <section class="container section download-section">
       <h2>Download Project Data</h2>
 
@@ -378,13 +424,13 @@
     </div>
   </footer>
 
-  <!-- Leaflet map JavaScript -->
+  <!-- Leaflet JavaScript -->
   <script
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     crossorigin=""
   ></script>
 
-  <!-- Your JavaScript file -->
+  <!-- Your JavaScript -->
   <script src="script.js"></script>
 
 </body>
