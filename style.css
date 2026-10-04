@@ -526,3 +526,9 @@ footer p {
   margin-bottom: 0.45rem;
   line-height: 1.45;
 }
+#diagnosis-card {
+  display: block;
+  visibility: visible;
+  opacity: 1;
+  margin-top: 20px;
+}
