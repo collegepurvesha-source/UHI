@@ -485,3 +485,44 @@ footer p {
   font-style: italic;
   margin-top: 10px;
 }
+/* Diagnosis card inside the Heat Profile panel */
+.diagnosis-card {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border: 1px solid #f5c85b;
+  border-left: 5px solid #f5c85b;
+  border-radius: 12px;
+  background: #fff9e7;
+  color: #18324a;
+  box-shadow: 0 8px 20px rgba(24, 50, 74, 0.1);
+}
+
+.diagnosis-label {
+  margin: 0 0 0.35rem;
+  color: #a56a00;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.diagnosis-card h4 {
+  margin: 0 0 0.65rem;
+  color: #17324d;
+  font-size: 1.1rem;
+}
+
+.diagnosis-card p {
+  margin: 0 0 0.8rem;
+  line-height: 1.6;
+}
+
+.diagnosis-card ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.diagnosis-card li {
+  margin-bottom: 0.45rem;
+  line-height: 1.45;
+}
